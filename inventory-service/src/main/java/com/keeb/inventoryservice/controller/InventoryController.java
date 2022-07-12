@@ -15,9 +15,8 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-
-    @GetMapping("/fetch")
-    public ResponseEntity<Object> fetchInventory(@RequestBody List<Long> productIds) {
+    @PostMapping("/fetch")
+    public ResponseEntity<List<ProductInventory>> fetchInventory(@RequestBody List<Long> productIds) {
         return inventoryService.fetchInventory(productIds);
     }
 

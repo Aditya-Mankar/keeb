@@ -18,7 +18,7 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
 
-    public ResponseEntity<Object> fetchInventory(List<Long> productIds) {
+    public ResponseEntity<List<ProductInventory>> fetchInventory(List<Long> productIds) {
         List<Inventory> inventoryList = inventoryRepository.fetchByProductIds(productIds);
         List<ProductInventory> response = new ArrayList<>();
 
