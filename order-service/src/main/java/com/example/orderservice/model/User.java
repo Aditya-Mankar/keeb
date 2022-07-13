@@ -11,13 +11,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @ToString
-public class Order {
+public class User {
 
     private String id;
-    private List<ProductInventory> products;
-    private String orderedBy;
-    private Double amount;
+    private String emailId;
+    private List<Order> orders;
+    private List<Product> wishlist;
     private String address;
-    private String paymentMethod;
 
 }

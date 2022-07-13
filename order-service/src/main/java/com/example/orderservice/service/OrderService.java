@@ -1,10 +1,12 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.configuration.InventoryFeignClient;
+import com.example.orderservice.configuration.UserFeignClient;
 import com.example.orderservice.exception.BadRequestException;
 import com.example.orderservice.exception.CustomException;
 import com.example.orderservice.model.Order;
 import com.example.orderservice.model.ProductInventory;
+import com.example.orderservice.model.User;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final InventoryFeignClient inventoryFeignClient;
+    private final UserFeignClient userFeignClient;
 
     public ResponseEntity<Object> fetchAllOrders() {
         List<Order> orders = orderRepository.findAll();
@@ -57,10 +60,23 @@ public class OrderService {
 
             inventoryFeignClient.updateInventory(inventoryList);
 
-            // TODO: Add order for user in user service
-            // TODO: Send notification to user as order placed using notification service
+            Order savedOrder = orderRepository.save(order);
 
-            orderRepository.save(order);
+            ResponseEntity<User> userResponse = userFeignClient.fetchUser(order.getOrderedBy());
+            User user = userResponse.getBody();
+
+            if(user != null) {
+                List<Order> orders = user.getOrders();
+                orders.add(savedOrder);
+
+                user.setOrders(orders);
+                user.setAddress(savedOrder.getAddress());
+
+                System.out.println(user);
+                userFeignClient.updateUser(user);
+            }
+
+            // TODO: Send notification to user as order placed using notification service
 
             return ResponseEntity.ok("Order created");
         } catch (BadRequestException bre) {

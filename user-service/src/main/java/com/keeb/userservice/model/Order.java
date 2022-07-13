@@ -1,4 +1,4 @@
-package com.example.orderservice.model;
+package com.keeb.userservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
