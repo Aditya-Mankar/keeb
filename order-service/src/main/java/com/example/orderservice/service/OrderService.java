@@ -10,6 +10,7 @@ import com.example.orderservice.model.User;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final InventoryFeignClient inventoryFeignClient;
     private final UserFeignClient userFeignClient;
+    private final KafkaTemplate<String, Order> kafkaTemplate;
 
     public ResponseEntity<Object> fetchAllOrders() {
         List<Order> orders = orderRepository.findAll();
@@ -72,11 +74,10 @@ public class OrderService {
                 user.setOrders(orders);
                 user.setAddress(savedOrder.getAddress());
 
-                System.out.println(user);
                 userFeignClient.updateUser(user);
             }
 
-            // TODO: Send notification to user as order placed using notification service
+            kafkaTemplate.send("orderCreatedTopic", savedOrder);
 
             return ResponseEntity.ok("Order created");
         } catch (BadRequestException bre) {
@@ -89,7 +90,24 @@ public class OrderService {
     }
 
     public ResponseEntity<String> deleteOrder(String orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+
         orderRepository.deleteById(orderId);
+
+        order.ifPresent(deletedOrder -> {
+            ResponseEntity<User> userResponse = userFeignClient.fetchUser(deletedOrder.getOrderedBy());
+            User user = userResponse.getBody();
+
+            List<Order> updatedOrders = user.getOrders().stream()
+                    .filter(ord -> !ord.getId().equals(deletedOrder.getId()))
+                    .collect(Collectors.toList());
+
+            user.setOrders(updatedOrders);
+
+            userFeignClient.updateUser(user);
+
+            kafkaTemplate.send("orderDeletedTopic", deletedOrder);
+        });
 
         return ResponseEntity.ok("Order deleted");
     }

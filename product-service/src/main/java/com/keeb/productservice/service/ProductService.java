@@ -61,6 +61,12 @@ public class ProductService {
         return ResponseEntity.ok(productResponse);
     }
 
+    public ResponseEntity<List<Product>> fetchProducts(List<Long> productIds) {
+        List<Product> products = productRepository.fetchProducts(productIds);
+
+        return ResponseEntity.ok(products);
+    }
+
     public ResponseEntity<String> updateProduct(Product product) {
         if(product.getId() == null)
             return ResponseEntity.badRequest().body("Id cannot be null");

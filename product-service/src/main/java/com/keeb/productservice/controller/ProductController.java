@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/v1/product")
@@ -16,6 +18,11 @@ public class ProductController {
     @GetMapping("/get-all-products")
     public ResponseEntity<Object> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @PostMapping("/fetch")
+    public ResponseEntity<List<Product>> fetchProducts(@RequestBody List<Long> productIds) {
+        return productService.fetchProducts(productIds);
     }
 
     @PostMapping("/add")
