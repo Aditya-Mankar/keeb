@@ -1,4 +1,4 @@
-package com.keeb.userservice.model;
+package com.keeb.paymentservice.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,14 +11,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @ToString
-public class Order {
+public class User {
 
     private String id;
-    private List<ProductInventory> products;
-    private String orderedBy;
-    private Double amount;
+    private String emailId;
+    private List<Order> orders;
+    private List<Product> wishlist;
     private String address;
-    private String paymentMethod;
-    private String paymentStatus;
 
 }

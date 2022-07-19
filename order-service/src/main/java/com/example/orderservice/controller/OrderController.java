@@ -18,9 +18,19 @@ public class OrderController {
         return orderService.fetchAllOrders();
     }
 
+    @GetMapping("/fetch/{orderId}")
+    public ResponseEntity<Order> fetchOrderById(@PathVariable String orderId) {
+        return orderService.fetchOrderById(orderId);
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<String> createOrder(@RequestBody Order order) {
+    public ResponseEntity<Object> createOrder(@RequestBody Order order) {
         return orderService.createOrder(order);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateOrder(@RequestBody Order order) {
+        return orderService.updateOrder(order);
     }
 
     @DeleteMapping("/delete/{orderId}")

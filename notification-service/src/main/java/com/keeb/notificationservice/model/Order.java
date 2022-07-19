@@ -19,6 +19,7 @@ public class Order {
     private Double amount;
     private String address;
     private String paymentMethod;
+    private String paymentStatus;
     private Boolean isCOD;
 
 }

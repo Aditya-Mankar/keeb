@@ -32,7 +32,13 @@ public class OrderService {
         return ResponseEntity.ok(orders);
     }
 
-    public ResponseEntity<String> createOrder(Order order) {
+    public ResponseEntity<Order> fetchOrderById(String orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+
+        return ResponseEntity.ok(order.orElse(null));
+    }
+
+    public ResponseEntity<Object> createOrder(Order order) {
         try {
             List<Long> productIds = order.getProducts().stream()
                     .map(ProductInventory::getProductId)
@@ -42,7 +48,7 @@ public class OrderService {
             List<ProductInventory> inventoryList = response.getBody();
 
             order.getProducts().forEach(product -> {
-                if(product.getQuantity() < 1)
+                if (product.getQuantity() < 1)
                     throw new BadRequestException("Invalid quantity for product with id: " + product.getProductId());
 
                 Optional<ProductInventory> inventory = inventoryList.stream()
@@ -50,10 +56,10 @@ public class OrderService {
                         .findAny();
 
                 inventory.ifPresent(inv -> {
-                    if(inv.getQuantity() == 0)
+                    if (inv.getQuantity() == 0)
                         throw new CustomException("No stock for product with id: " + product.getProductId());
 
-                    if(inv.getQuantity() < product.getQuantity())
+                    if (inv.getQuantity() < product.getQuantity())
                         throw new CustomException("Not enough stock for product with id: " + product.getProductId());
 
                     inv.setQuantity(inv.getQuantity() - product.getQuantity());
@@ -62,12 +68,14 @@ public class OrderService {
 
             inventoryFeignClient.updateInventory(inventoryList);
 
+            order.setPaymentStatus("In progress");
+
             Order savedOrder = orderRepository.save(order);
 
             ResponseEntity<User> userResponse = userFeignClient.fetchUser(order.getOrderedBy());
             User user = userResponse.getBody();
 
-            if(user != null) {
+            if (user != null) {
                 List<Order> orders = user.getOrders();
                 orders.add(savedOrder);
 
@@ -79,7 +87,7 @@ public class OrderService {
 
             kafkaTemplate.send("orderCreatedTopic", savedOrder);
 
-            return ResponseEntity.ok("Order created");
+            return ResponseEntity.ok(savedOrder);
         } catch (BadRequestException bre) {
             return ResponseEntity.badRequest().body(bre.getErrorMessage());
         } catch (CustomException ce) {
@@ -87,6 +95,12 @@ public class OrderService {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
+    }
+
+    public ResponseEntity<String> updateOrder(Order order) {
+        orderRepository.save(order);
+
+        return ResponseEntity.ok("Order updated");
     }
 
     public ResponseEntity<String> deleteOrder(String orderId) {
@@ -111,4 +125,5 @@ public class OrderService {
 
         return ResponseEntity.ok("Order deleted");
     }
+
 }
