@@ -1,6 +1,5 @@
 package com.keeb.productservice.controller;
 
-import com.keeb.productservice.model.Product;
 import com.keeb.productservice.model.Review;
 import com.keeb.productservice.service.ReviewService;
 import lombok.AllArgsConstructor;

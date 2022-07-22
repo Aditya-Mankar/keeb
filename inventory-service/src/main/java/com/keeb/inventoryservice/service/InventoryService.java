@@ -4,6 +4,7 @@ import com.keeb.inventoryservice.model.Inventory;
 import com.keeb.inventoryservice.model.ProductInventory;
 import com.keeb.inventoryservice.repository.InventoryRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
@@ -31,6 +33,8 @@ public class InventoryService {
             response.add(productInventory);
         });
 
+        log.info("Fetching products with ids: " + productIds);
+
         return ResponseEntity.ok(response);
     }
 
@@ -41,6 +45,8 @@ public class InventoryService {
                 .build();
 
         inventoryRepository.save(inventory);
+
+        log.info("Saving inventory for product with id: " + productInventory.getProductId());
 
         return ResponseEntity.ok("Inventory added product with id: " + productInventory.getProductId());
     }
@@ -62,11 +68,15 @@ public class InventoryService {
 
         inventoryRepository.saveAll(inventoryList);
 
+        log.info("Updating inventory for products: " + request);
+
         return ResponseEntity.ok("Inventory updated");
     }
 
     public ResponseEntity<String> deleteInventory(Long productId) {
         inventoryRepository.deleteByProductId(productId);
+
+        log.info("Deleting inventory for product with id: " + productId);
 
         return ResponseEntity.ok("Inventory deleted for product with id: " + productId);
     }

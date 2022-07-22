@@ -5,6 +5,7 @@ import com.keeb.userservice.model.Product;
 import com.keeb.userservice.model.User;
 import com.keeb.userservice.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -22,11 +24,15 @@ public class UserService {
     public ResponseEntity<User> fetchUser(String emailId) {
         Optional<User> user = userRepository.findByEmailId(emailId);
 
+        log.info("Fetching user with emailId: " + emailId);
+
         return ResponseEntity.ok(user.orElse(null));
     }
 
     public ResponseEntity<String> createUser(User user) {
         userRepository.save(user);
+
+        log.info("Saving user with emailId: " + user.getEmailId());
 
         return ResponseEntity.ok("User created");
     }
@@ -34,11 +40,15 @@ public class UserService {
     public ResponseEntity<String> updateUser(User user) {
         userRepository.save(user);
 
+        log.info("Updating user with emailId: " + user.getEmailId());
+
         return ResponseEntity.ok("User updated");
     }
 
     public ResponseEntity<String> deleteUser(String emailId) {
         userRepository.deleteByEmailId(emailId);
+
+        log.info("Deleting user with emailId: " + emailId);
 
         return ResponseEntity.ok("User deleted");
     }
@@ -57,6 +67,8 @@ public class UserService {
             userRepository.save(us);
         });
 
+        log.info("Added product with id: " + productId + " to wishlist of user with emailId: " + emailId);
+
         return ResponseEntity.ok("Product added to wishlist");
     }
 
@@ -74,6 +86,8 @@ public class UserService {
 
             userRepository.save(us);
         });
+
+        log.info("Removing product with id: " + productId + " to wishlist of user with emailId: " + emailId);
 
         return ResponseEntity.ok("Product removed from wishlist");
     }

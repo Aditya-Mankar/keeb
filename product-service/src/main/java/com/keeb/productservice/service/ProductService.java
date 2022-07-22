@@ -8,9 +8,7 @@ import com.keeb.productservice.repository.ImageRepository;
 import com.keeb.productservice.repository.ProductRepository;
 import com.keeb.productservice.repository.ReviewRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -30,6 +29,8 @@ public class ProductService {
     public ResponseEntity<Object> getAllProducts() {
         List<Product> productsList = productRepository.findAll();
         List<ProductResponse> response = new ArrayList<>();
+
+        log.info("Fetching all products");
 
         productsList.forEach(product -> {
             List<Review> reviews = reviewRepository.findByProductId(product.getId());
@@ -46,6 +47,8 @@ public class ProductService {
     public ResponseEntity<String> addProduct(Product product) {
         productRepository.save(product);
 
+        log.info("Saved product with id: " + product.getId());
+
         return ResponseEntity.ok("Product added successfully");
     }
 
@@ -58,11 +61,15 @@ public class ProductService {
 
         ProductResponse productResponse = transformToProductResponse(product, reviews, image);
 
+        log.info("Fetching products with id: " + id);
+
         return ResponseEntity.ok(productResponse);
     }
 
     public ResponseEntity<List<Product>> fetchProducts(List<Long> productIds) {
         List<Product> products = productRepository.fetchProducts(productIds);
+
+        log.info("Fetching products with productIds: " + productIds);
 
         return ResponseEntity.ok(products);
     }
@@ -73,12 +80,16 @@ public class ProductService {
 
         productRepository.save(product);
 
+        log.info("Updated product with id: " + product.getId());
+
         return ResponseEntity.ok("Product updated successfully");
     }
 
     public ResponseEntity<String> deleteProduct(Long id) {
         reviewRepository.deleteByProductId(id);
         productRepository.deleteById(id);
+
+        log.info("Deleted product with id: " + id);
 
         return ResponseEntity.ok("Product deleted successfully");
     }

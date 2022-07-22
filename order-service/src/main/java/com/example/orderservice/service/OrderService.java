@@ -9,6 +9,7 @@ import com.example.orderservice.model.ProductInventory;
 import com.example.orderservice.model.User;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -29,11 +31,15 @@ public class OrderService {
     public ResponseEntity<Object> fetchAllOrders() {
         List<Order> orders = orderRepository.findAll();
 
+        log.info("Fetching all orders");
+
         return ResponseEntity.ok(orders);
     }
 
     public ResponseEntity<Order> fetchOrderById(String orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
+
+        log.info("Fetching order by id: " + orderId);
 
         return ResponseEntity.ok(order.orElse(null));
     }
@@ -87,6 +93,8 @@ public class OrderService {
 
             kafkaTemplate.send("orderCreatedTopic", savedOrder);
 
+            log.info("Created order having id: " + savedOrder.getId());
+
             return ResponseEntity.ok(savedOrder);
         } catch (BadRequestException bre) {
             return ResponseEntity.badRequest().body(bre.getErrorMessage());
@@ -99,6 +107,8 @@ public class OrderService {
 
     public ResponseEntity<String> updateOrder(Order order) {
         orderRepository.save(order);
+
+        log.info("Updated order having id: " + order.getId());
 
         return ResponseEntity.ok("Order updated");
     }
@@ -122,6 +132,8 @@ public class OrderService {
 
             kafkaTemplate.send("orderDeletedTopic", deletedOrder);
         });
+
+        log.info("Deleted order having id: " + orderId);
 
         return ResponseEntity.ok("Order deleted");
     }
