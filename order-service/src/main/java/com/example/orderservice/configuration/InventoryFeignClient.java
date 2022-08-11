@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "inventory-feign-client", url = "http://localhost:8081/v1/inventory")
+@FeignClient("inventory-service")
 public interface InventoryFeignClient {
 
-    @PostMapping("/fetch")
+    @PostMapping("v1/inventory/fetch")
     public ResponseEntity<List<ProductInventory>> fetchInventory(@RequestBody List<Long> productIds);
 
-    @PutMapping("/update-quantity")
+    @PutMapping("v1/inventory/update-quantity")
     public ResponseEntity<String> updateInventory(@RequestBody List<ProductInventory> request);
 
 }

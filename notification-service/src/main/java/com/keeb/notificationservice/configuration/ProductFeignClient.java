@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "product-feign-client", url = "http://localhost:8080/v1/product")
+@FeignClient("product-service")
 public interface ProductFeignClient {
 
-    @PostMapping("/fetch")
+    @PostMapping("v1/product/fetch")
     public ResponseEntity<List<Product>> fetchProducts(@RequestBody List<Long> productIds);
 
 }

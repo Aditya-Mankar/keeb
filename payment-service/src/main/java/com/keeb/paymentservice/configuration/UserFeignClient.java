@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "user-feign-client", url = "http://localhost:8083/v1/user")
+@FeignClient("user-service")
 public interface UserFeignClient {
 
-    @GetMapping("/fetch/{emailId}")
+    @GetMapping("v1/user/fetch/{emailId}")
     public ResponseEntity<User> fetchUser(@PathVariable String emailId);
 
-    @PutMapping("/update")
+    @PutMapping("v1/user/update")
     public ResponseEntity<String> updateUser(@RequestBody User user);
 
 }
